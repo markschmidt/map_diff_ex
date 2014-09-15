@@ -39,11 +39,20 @@ defmodule MapDiffExTest do
     assert diff(map1, map2) == expected_diff
   end
 
-  test "should handle lists" do
+  test "should handle lists with same length" do
     map1 = %{a: [1,2]}
     map2 = %{a: [2,3]}
 
-    expected_diff = %{a: {[1,2],[2,3]}}
+    expected_diff = %{a: [{1,2},{2,3}]}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should handle lists with different length" do
+    map1 = %{a: [1,2]}
+    map2 = %{a: [2,3,4]}
+
+    expected_diff = %{a: {[1,2],[2,3,4]}}
 
     assert diff(map1, map2) == expected_diff
   end
@@ -62,6 +71,24 @@ defmodule MapDiffExTest do
     map2 = %{a: %{b: 2}}
 
     expected_diff = %{a: {[2,3], %{b: 2}}}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should compare maps as list elements with empty list" do
+    map1 = %{key: [%{a: 1, b: "test", c: 0, "d": :a}]}
+    map2 = %{key: []}
+
+    expected_diff = %{key: {[%{a: 1, b: "test", c: 0, "d": :a}],[]}}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should compare maps as list elements" do
+    map1 = %{key: [%{a: 1, b: "test", c: 0, "d": :a}]}
+    map2 = %{key: [%{a: 1, b: "test", c: 1, "d": :a}]}
+
+    expected_diff = %{key: [%{c: {0,1}}]}
 
     assert diff(map1, map2) == expected_diff
   end
