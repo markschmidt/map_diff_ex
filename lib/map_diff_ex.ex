@@ -10,7 +10,7 @@ defmodule MapDiffEx do
     |> Enum.map(fn key ->
       {key, do_diff(Map.get(map1, key), Map.get(map2, key))}
     end)
-    |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
+    |> filter_nil_values
     |> to_map
   end
 
@@ -28,8 +28,10 @@ defmodule MapDiffEx do
     {value1, value2}
   end
 
+  defp to_map(list), do: Dict.merge(%{}, list)
 
-  defp to_map(list) do
-    Dict.merge(%{}, list)
+  defp filter_nil_values(list) do
+    list
+    |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
   end
 end
