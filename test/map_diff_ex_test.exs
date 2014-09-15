@@ -38,4 +38,31 @@ defmodule MapDiffExTest do
 
     assert diff(map1, map2) == expected_diff
   end
+
+  test "should handle lists" do
+    map1 = %{a: [1,2]}
+    map2 = %{a: [2,3]}
+
+    expected_diff = %{a: {[1,2],[2,3]}}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should be able to compare maps and list" do
+    map1 = %{a: %{b: 2}}
+    map2 = %{a: [2,3]}
+
+    expected_diff = %{a: {%{b: 2}, [2,3]}}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should be able to compare lists and maps" do
+    map1 = %{a: [2,3]}
+    map2 = %{a: %{b: 2}}
+
+    expected_diff = %{a: {[2,3], %{b: 2}}}
+
+    assert diff(map1, map2) == expected_diff
+  end
 end
