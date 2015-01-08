@@ -56,6 +56,15 @@ defmodule MapDiffExTest do
     assert diff(map1, map2) == expected_diff
   end
 
+  test "should handle different order in list as special case" do
+    map1 = %{a: [1,2]}
+    map2 = %{a: [2,1]}
+
+    expected_diff = %{a: {"List with order: 0,1", "List with order: 1,0"}}
+
+    assert diff(map1, map2) == expected_diff
+  end
+
   test "should handle lists with different length" do
     map1 = %{a: [1,2]}
     map2 = %{a: [2,3,4]}
