@@ -1,6 +1,6 @@
 defmodule MapDiffEx do
 
-  def diff(map1, map2), do: do_diff(map1, map2)
+  def diff(map1, map2), do: do_diff(map1, map2) |> filter_empty_map
 
   defp do_diff(map1, map2) when map1 == map2, do: nil
   defp do_diff(map1, map2) when is_map(map1) and is_map(map2) do
@@ -33,4 +33,7 @@ defmodule MapDiffEx do
     list
     |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
   end
+
+  defp filter_empty_map(map) when map_size(map) == 0, do: nil
+  defp filter_empty_map(map), do: map
 end
