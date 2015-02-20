@@ -4,10 +4,10 @@ defmodule MapDiffEx do
 
   defp do_diff(map1, map2) when map1 == map2, do: nil
   defp do_diff(map1, map2) when is_map(map1) and is_map(map2) do
-    Map.keys(map1) ++ Map.keys(map2)
+    Dict.keys(map1) ++ Dict.keys(map2)
     |> Enum.uniq
     |> Enum.map(fn key ->
-      {key, do_diff(Map.get(map1, key), Map.get(map2, key))}
+      {key, do_diff(Dict.get(map1, key, :key_not_set), Dict.get(map2, key, :key_not_set))}
     end)
     |> filter_nil_values
     |> to_map

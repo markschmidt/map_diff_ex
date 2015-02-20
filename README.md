@@ -6,7 +6,7 @@ MapDiffEx is a tiny Elixir library to perform a deep comparison between Maps. It
 ```elixir
 Interactive Elixir (1.0.0) - press Ctrl+C to exit (type h() ENTER for help)
 iex(1)> MapDiffEx.diff(%{a: 1, b: "hello"}, %{a: 2, x: [1,2]})
-%{a: {1, 2}, b: {"hello", nil}, x: {nil, [1, 2]}} 
+%{a: {1, 2}, b: {"hello", :key_not_set}, x: {:key_not_set, [1, 2]}}
 ```
 
 

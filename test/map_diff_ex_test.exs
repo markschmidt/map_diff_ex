@@ -16,7 +16,7 @@ defmodule MapDiffExTest do
     map1 = %{a: 1, b: "test", c: 0, "d": :a}
     map2 = %{a: 2, b: "foobar", "d": :x}
 
-    expected_diff = %{a: {1, 2}, b: {"test", "foobar"}, c: {0, nil}, "d": {:a, :x}}
+    expected_diff = %{a: {1, 2}, b: {"test", "foobar"}, c: {0, :key_not_set}, "d": {:a, :x}}
 
     assert diff(map1, map2) == expected_diff
   end
@@ -25,8 +25,16 @@ defmodule MapDiffExTest do
     map2 = %{a: 1, b: "test", c: 0, "d": :a}
     map1 = %{a: 2, b: "foobar", "d": :x}
 
-    expected_diff = %{a: {2, 1}, b: {"foobar", "test"}, c: {nil, 0}, "d": {:x, :a}}
+    expected_diff = %{a: {2, 1}, b: {"foobar", "test"}, c: {:key_not_set, 0}, "d": {:x, :a}}
 
+    assert diff(map1, map2) == expected_diff
+  end
+
+  test "should detect the difference between nil value and missing key" do
+    map1 = %{a: 1}
+    map2 = %{a: 1, b: nil}
+
+    expected_diff = %{b: {:key_not_set, nil}}
     assert diff(map1, map2) == expected_diff
   end
 
