@@ -1,30 +1,53 @@
 defmodule MapDiffEx do
 
-  def diff(map1, map2), do: do_diff(map1, map2) |> filter_empty_map
+  def diff(map1, map2, options \\ %{}), do: do_diff(map1, map2, options) |> filter_empty_map
 
-  defp do_diff(map1, map2) when map1 == map2, do: nil
-  defp do_diff(map1, map2) when is_map(map1) and is_map(map2) do
+  defp do_diff(map1, map2, _options) when map1 == map2, do: nil
+  defp do_diff(map1, map2, options) when is_map(map1) and is_map(map2) do
+    ignore_keys = options[:ignore] || []
     Dict.keys(map1) ++ Dict.keys(map2)
     |> Enum.uniq
     |> Enum.map(fn key ->
-      {key, do_diff(Dict.get(map1, key, :key_not_set), Dict.get(map2, key, :key_not_set))}
+      cond do
+        Enum.member?(ignore_keys, key |> Atom.to_string) ->
+          {key, nil}
+        true ->
+          value1 = Dict.get(map1, key, :key_not_set)
+          value2 = Dict.get(map2, key, :key_not_set)
+          next_level_options = Dict.put(options, :ignore, ignore_keys |> strip_prefix_from_string_list(key))
+
+          { key, do_diff(value1, value2, next_level_options) }
+      end
     end)
     |> filter_nil_values
     |> to_map
   end
 
-  defp do_diff(list1, list2) when is_list(list1) and is_list(list2) do
+  defp do_diff(list1, list2, options) when is_list(list1) and is_list(list2) do
     case length(list1) == length(list2) do
       false -> {list1, list2}
-      true  -> compare_same_size_lists(list1, list2)
+      true  -> compare_same_size_lists(list1, list2, options)
     end
   end
 
-  defp do_diff(value1, value2) do
+  defp do_diff(value1, value2, _options) do
     {value1, value2}
   end
 
-  defp compare_same_size_lists(list1, list2) do
+  def strip_prefix_from_string_list(ignore_keys, key) do
+    ignore_keys
+    |> Enum.map(fn key_to_ignore ->
+      prefix = "#{key}."
+      cond do
+        String.starts_with?(key_to_ignore, prefix) ->
+          String.slice(key_to_ignore, String.length(prefix)..-1)
+        true -> nil
+      end
+    end)
+    |> Enum.reject(&is_nil(&1))
+  end
+
+  defp compare_same_size_lists(list1, list2, options) do
     checksums1 = list_of_checksums(list1)
     checksums2 = list_of_checksums(list2)
     cond do
@@ -35,7 +58,7 @@ defmodule MapDiffEx do
       true ->
         (0..length(list1)-1)
         |> Enum.map(fn(i) ->
-          do_diff(Enum.at(list1, i), Enum.at(list2, i))
+          do_diff(Enum.at(list1, i), Enum.at(list2, i), options)
         end)
     end
   end

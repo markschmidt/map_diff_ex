@@ -1,7 +1,10 @@
 defmodule MapDiffExTest do
   use ExUnit.Case
 
-  import MapDiffEx, only: [diff: 2]
+  import MapDiffEx, only: [diff: 2,
+                           diff: 3,
+                           strip_prefix_from_string_list: 2
+                          ]
 
   test "should return nil for empty maps" do
     assert diff(%{}, %{}) == nil
@@ -19,6 +22,33 @@ defmodule MapDiffExTest do
     expected_diff = %{a: {1, 2}, b: {"test", "foobar"}, c: {0, :key_not_set}, "d": {:a, :x}}
 
     assert diff(map1, map2) == expected_diff
+  end
+
+  test "should ignore certain differences if given as option" do
+    map1 = %{a: 1, b: "test"}
+    map2 = %{a: 2, b: "foobar"}
+
+    expected_diff = %{a: {1,2}}
+
+    assert diff(map1, map2, %{ignore: ["b"]}) == expected_diff
+  end
+
+  test "should support nested keys for the ignore option" do
+    map1 = %{a: 1, b: %{ x: "test", y: 1}}
+    map2 = %{a: 2, b: %{ x: "foobar", y: 2}}
+
+    expected_diff = %{a: {1,2}, b: %{y: {1,2}}}
+
+    assert diff(map1, map2, %{ignore: ["b.x"]}) == expected_diff
+  end
+
+  test "should support nested keys with arrays for the ignore option" do
+    map1 = %{a: 1, b: [%{ x: "test", y: 1}]}
+    map2 = %{a: 2, b: [%{ x: "foobar", y: 2}]}
+
+    expected_diff = %{a: {1,2}, b: [%{y: {1,2}}]}
+
+    assert diff(map1, map2, %{ignore: ["b.x"]}) == expected_diff
   end
 
   test "should also detect missing keys in the first hash" do
@@ -109,4 +139,13 @@ defmodule MapDiffExTest do
 
     assert diff(map1, map2) == expected_diff
   end
+
+  test ".strip_prefix_from_string_list should strip prefix from keys" do
+    assert strip_prefix_from_string_list(["foo.bar"], :foo) == ["bar"]
+  end
+
+  test ".strip_prefix_from_string_list should omit keys not matching the key" do
+    assert strip_prefix_from_string_list(["other.bar"], :foo) == []
+  end
+
 end
