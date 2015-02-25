@@ -1,6 +1,6 @@
 defmodule MapDiffEx do
 
-  def diff(map1, map2, options \\ %{}), do: do_diff(map1, map2, options) |> filter_empty_map
+  def diff(map1, map2, options \\ %{}), do: do_diff(map1, map2, options)
 
   defp do_diff(map1, map2, _options) when map1 == map2, do: nil
   defp do_diff(map1, map2, options) when is_map(map1) and is_map(map2) do
@@ -21,6 +21,7 @@ defmodule MapDiffEx do
     end)
     |> filter_nil_values
     |> to_map
+    |> filter_empty_map
   end
 
   defp do_diff(list1, list2, options) when is_list(list1) and is_list(list2) do
@@ -60,6 +61,8 @@ defmodule MapDiffEx do
         |> Enum.map(fn(i) ->
           do_diff(Enum.at(list1, i), Enum.at(list2, i), options)
         end)
+        |> Enum.reject(&is_nil(&1))
+        |> filter_empty_list
     end
   end
 
@@ -76,6 +79,9 @@ defmodule MapDiffEx do
     list
     |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
   end
+
+  defp filter_empty_list([]), do: nil
+  defp filter_empty_list(list), do: list
 
   defp filter_empty_map(map) when map_size(map) == 0, do: nil
   defp filter_empty_map(map), do: map

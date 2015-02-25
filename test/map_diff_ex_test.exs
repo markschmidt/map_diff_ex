@@ -42,6 +42,13 @@ defmodule MapDiffExTest do
     assert diff(map1, map2, %{ignore: ["b.x"]}) == expected_diff
   end
 
+  test "should collapse empty maps and lists correctly" do
+    map1 = %{collection: [%{id: 1, work_experience: [%{normalized_name: "foobar"}]}]}
+    map2 = %{collection: [%{id: 1, work_experience: [%{normalized_name: "foobar2"}]}]}
+
+    assert diff(map1, map2, %{ignore: ["collection.work_experience.normalized_name"]}) == nil
+  end
+
   test "should support nested keys with arrays for the ignore option" do
     map1 = %{a: 1, b: [%{ x: "test", y: 1}]}
     map2 = %{a: 2, b: [%{ x: "foobar", y: 2}]}
