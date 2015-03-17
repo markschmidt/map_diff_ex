@@ -63,10 +63,10 @@ defmodule MapDiffEx do
       {false, _} -> {list1, list2}
       {true, {:right, index, elem_hash}} ->
         elem = Enum.at(list2, index)
-        {"#{length(list1)} element List", "List with additional element: #{inspect elem}"}
+        {"#{length(list1)} element List", {"List with additional element", elem}}
       {true, {:left, index, elem_hash}} ->
         elem = Enum.at(list1, index)
-        {"List with additional element: #{inspect elem}", "#{length(list2)} element List"}
+        {{"List with additional element", elem}, "#{length(list2)} element List"}
     end
   end
 
