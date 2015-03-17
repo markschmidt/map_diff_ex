@@ -1,4 +1,7 @@
 defmodule MapDiffEx do
+  require MinifiedListDiff
+
+  @default_minify_threshold 500
 
   def diff(map1, map2, options \\ %{}), do: do_diff(map1, map2, options)
 
@@ -26,7 +29,7 @@ defmodule MapDiffEx do
 
   defp do_diff(list1, list2, options) when is_list(list1) and is_list(list2) do
     case length(list1) == length(list2) do
-      false -> {list1, list2}
+      false -> compare_differing_size_lists(list1, list2, options)
       true  -> compare_same_size_lists(list1, list2, options)
     end
   end
@@ -46,6 +49,25 @@ defmodule MapDiffEx do
       end
     end)
     |> Enum.reject(&is_nil(&1))
+  end
+
+  defp compare_differing_size_lists(list1, list2, options) do
+    checksums1 = list_of_checksums(list1)
+    checksums2 = list_of_checksums(list2)
+
+    # list of big documents can't be really compared, so we try to optimize for that
+    threshold = options[:minify_threshold] || @default_minify_threshold
+    minify = max(String.length(inspect(list1)), String.length(inspect(list2))) > threshold
+    case {minify, MinifiedListDiff.diff(checksums1, checksums2)} do
+      {_, nil}   -> {list1, list2}
+      {false, _} -> {list1, list2}
+      {true, {:right, index, elem_hash}} ->
+        elem = Enum.at(list2, index)
+        {"#{length(list1)} element List", "List with additional element: #{inspect elem}"}
+      {true, {:left, index, elem_hash}} ->
+        elem = Enum.at(list1, index)
+        {"List with additional element: #{inspect elem}", "#{length(list2)} element List"}
+    end
   end
 
   defp compare_same_size_lists(list1, list2, options) do

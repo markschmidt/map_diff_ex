@@ -102,6 +102,24 @@ defmodule MapDiffExTest do
     assert diff(map1, map2) == expected_diff
   end
 
+  test "should report list which differ in only one element in a more readable way - rhs" do
+    map1 = %{a: [1,2]}
+    map2 = %{a: [1,2,3]}
+
+    expected_diff = %{a: {"2 element List", "List with additional element: 3"}}
+
+    assert diff(map1, map2, %{minify_threshold: 0}) == expected_diff
+  end
+
+  test "should report list which differ in only one element in a more readable way - lhs" do
+    map1 = %{a: [1,2,3]}
+    map2 = %{a: [1,2]}
+
+    expected_diff = %{a: {"List with additional element: 3", "2 element List"}}
+
+    assert diff(map1, map2, %{minify_threshold: 0}) == expected_diff
+  end
+
   test "should handle lists with different length" do
     map1 = %{a: [1,2]}
     map2 = %{a: [2,3,4]}
