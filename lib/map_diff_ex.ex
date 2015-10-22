@@ -26,16 +26,19 @@ defmodule MapDiffEx do
     |> to_map
     |> filter_empty_map
   end
-
   defp do_diff(list1, list2, options) when is_list(list1) and is_list(list2) do
     case length(list1) == length(list2) do
       false -> compare_differing_size_lists(list1, list2, options)
       true  -> compare_same_size_lists(list1, list2, options)
     end
   end
-
-  defp do_diff(value1, value2, _options) do
-    {value1, value2}
+  defp do_diff(value1, value2, options) do
+    same_tuples = Dict.get(options, :treat_as_same, [])
+    if similar_value?(value1, value2, same_tuples) do
+      nil
+    else
+      {value1, value2}
+    end
   end
 
   def strip_prefix_from_string_list(ignore_keys, key) do
@@ -93,6 +96,16 @@ defmodule MapDiffEx do
     right_order = list1 |> Enum.map(&Enum.find_index(list2, fn(x) -> x == &1 end)) |> Enum.join(",")
 
     {"List with order: #{left_order}", "List with order: #{right_order}"}
+  end
+
+  defp similar_value?(value1, value2, same_tuples) do
+    Enum.any?(same_tuples, fn {left,right} ->
+      case {value1, value2} do
+        {^left, ^right} -> true
+        {^right, ^left} -> true
+        _               -> false
+      end
+    end)
   end
 
   defp to_map(list), do: Dict.merge(%{}, list)
