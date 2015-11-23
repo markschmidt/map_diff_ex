@@ -76,10 +76,14 @@ defmodule MapDiffEx do
   defp compare_same_size_lists(list1, list2, options) do
     checksums1 = list_of_checksums(list1)
     checksums2 = list_of_checksums(list2)
+
+    ignore_list_order = Dict.get(options, :ignore_list_order, false)
     cond do
       checksums1 == checksums2 ->
         nil
-      Enum.sort(checksums1) == Enum.sort(checksums2) ->
+      same_elements?(checksums1, checksums2) && ignore_list_order ->
+        nil
+      same_elements?(checksums1, checksums2) && !ignore_list_order ->
         order_diff(checksums1, checksums2)
       true ->
         (0..length(list1)-1)
@@ -89,6 +93,10 @@ defmodule MapDiffEx do
         |> Enum.reject(&is_nil(&1))
         |> filter_empty_list
     end
+  end
+
+  defp same_elements?(list1, list2) do
+    Enum.sort(list1) == Enum.sort(list2)
   end
 
   defp order_diff(list1, list2) when length(list1) == length(list2) do
