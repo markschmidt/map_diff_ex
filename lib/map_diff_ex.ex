@@ -154,7 +154,6 @@ defmodule MapDiffEx do
   defp similar_float_binaries(value1, value2, accuracy) do
     extract_by_accuracy(value1, accuracy) == extract_by_accuracy(value2, accuracy)
   end
-  defp similar_float_binaries(_, _, _), do: false
 
   defp extract_by_accuracy(float_value, accuracy) when is_binary(float_value) do
     case Regex.run(~r/^(\d+\.\d{#{accuracy}})\d*$/, float_value) do
