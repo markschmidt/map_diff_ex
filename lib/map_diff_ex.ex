@@ -34,10 +34,10 @@ defmodule MapDiffEx do
   end
   defp do_diff(value1, value2, options) do
     same_tuples = Dict.get(options, :treat_as_same, [])
-    if similar_value?(value1, value2, same_tuples) do
-      nil
-    else
-      {value1, value2}
+    cond do
+      similar_value?(value1, value2, same_tuples) -> nil
+      only_diff_in_whitespaces(value1, value2)    -> nil
+      true                                        -> {value1, value2}
     end
   end
 
@@ -142,4 +142,10 @@ defmodule MapDiffEx do
     |> List.flatten
     |> :erlang.list_to_bitstring
   end
+
+  defp only_diff_in_whitespaces(value1, value2) when is_binary(value1) and is_binary(value2) do
+    String.strip(value1) == String.strip(value2)
+  end
+  defp only_diff_in_whitespaces(_, _), do: false
+
 end

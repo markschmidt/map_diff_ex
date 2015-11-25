@@ -40,6 +40,13 @@ defmodule MapDiffExTest do
     assert diff(map1, map2, %{ignore: ["b"]}) == expected_diff
   end
 
+  test "should ignore trailing and leading whitespaces" do
+    map1 = %{a: 1, b: "    test"}
+    map2 = %{a: 1, b: "test "}
+
+    assert diff(map1, map2) == nil
+  end
+
   test "should support nested keys for the ignore option" do
     map1 = %{a: 1, b: %{ x: "test", y: 1}}
     map2 = %{a: 2, b: %{ x: "foobar", y: 2}}
