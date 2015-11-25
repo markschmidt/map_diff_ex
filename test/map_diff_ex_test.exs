@@ -40,6 +40,13 @@ defmodule MapDiffExTest do
     assert diff(map1, map2, %{ignore: ["b"]}) == expected_diff
   end
 
+  test "should ignore certain differences between floating point strings if given as option" do
+    map1 = %{b: "9.9880242"}
+    map2 = %{b: "9.9880251"}
+
+    assert diff(map1, map2, %{float_accuracy: 5}) == nil
+  end
+
   test "should ignore trailing and leading whitespaces" do
     map1 = %{a: 1, b: "    test"}
     map2 = %{a: 1, b: "test "}

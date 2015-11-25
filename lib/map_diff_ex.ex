@@ -34,10 +34,12 @@ defmodule MapDiffEx do
   end
   defp do_diff(value1, value2, options) do
     same_tuples = Dict.get(options, :treat_as_same, [])
+    accuracy = Dict.get(options, :float_accuracy, nil)
     cond do
-      similar_value?(value1, value2, same_tuples) -> nil
-      only_diff_in_whitespaces(value1, value2)    -> nil
-      true                                        -> {value1, value2}
+      similar_value?(value1, value2, same_tuples)      -> nil
+      only_diff_in_whitespaces(value1, value2)         -> nil
+      similar_float_binaries(value1, value2, accuracy) -> nil
+      true                                             -> {value1, value2}
     end
   end
 
@@ -147,5 +149,19 @@ defmodule MapDiffEx do
     String.strip(value1) == String.strip(value2)
   end
   defp only_diff_in_whitespaces(_, _), do: false
+
+  defp similar_float_binaries(_, _, nil), do: false
+  defp similar_float_binaries(value1, value2, accuracy) do
+    extract_by_accuracy(value1, accuracy) == extract_by_accuracy(value2, accuracy)
+  end
+  defp similar_float_binaries(_, _, _), do: false
+
+  defp extract_by_accuracy(float_value, accuracy) when is_binary(float_value) do
+    case Regex.run(~r/^(\d+\.\d{#{accuracy}})\d*$/, float_value) do
+      [_, value] -> value
+      _          -> float_value
+    end
+  end
+  defp extract_by_accuracy(value, _accuracy), do: value
 
 end
