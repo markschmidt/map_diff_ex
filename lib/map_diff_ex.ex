@@ -122,7 +122,7 @@ defmodule MapDiffEx do
 
   defp filter_nil_values(list) do
     list
-    |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
+    |> Enum.reject(fn {_key, value} -> is_nil(value) end)
   end
 
   defp filter_empty_list([]), do: nil
