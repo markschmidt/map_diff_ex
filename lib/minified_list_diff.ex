@@ -13,8 +13,8 @@ defmodule MinifiedListDiff do
   end
 
   defp do_diff([head | tail1], [head | tail2], acc), do: do_diff(tail1, tail2, acc)
-  defp do_diff([head,a2 | tail1], [b1, head | tail2], acc), do: do_diff(tail1, tail2, {b1})
-  defp do_diff([a1,head | tail1], [head, b2 | tail2], acc), do: do_diff(tail1, tail2, {a1})
+  defp do_diff([head, _ | tail1], [b1, head | tail2], _), do: do_diff(tail1, tail2, {b1})
+  defp do_diff([a1, head | tail1], [head, _ | tail2], _), do: do_diff(tail1, tail2, {a1})
   defp do_diff([head | []], [head | []], acc), do: acc
   defp do_diff([head | []], [], nil), do: head
   defp do_diff([], [head | []], nil), do: head

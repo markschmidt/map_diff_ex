@@ -66,10 +66,10 @@ defmodule MapDiffEx do
     case {minify, MinifiedListDiff.diff(checksums1, checksums2)} do
       {_, nil}   -> {list1, list2}
       {false, _} -> {list1, list2}
-      {true, {:right, index, elem_hash}} ->
+      {true, {:right, index, _}} ->
         elem = Enum.at(list2, index)
         {"#{length(list1)} element List", {"List with additional element", elem}}
-      {true, {:left, index, elem_hash}} ->
+      {true, {:left, index, _}} ->
         elem = Enum.at(list1, index)
         {{"List with additional element", elem}, "#{length(list2)} element List"}
     end
@@ -122,7 +122,7 @@ defmodule MapDiffEx do
 
   defp filter_nil_values(list) do
     list
-    |> Enum.reject(fn({_key, value} -> is_nil(value)) end)
+    |> Enum.reject(fn {_key, value} -> is_nil(value) end)
   end
 
   defp filter_empty_list([]), do: nil
