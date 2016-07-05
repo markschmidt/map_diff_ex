@@ -8,6 +8,7 @@ defmodule MapDiffEx do
   defp do_diff(map1, map2, _options) when map1 == map2, do: nil
   defp do_diff(map1, map2, options) when is_map(map1) and is_map(map2) do
     ignore_keys = options[:ignore] || []
+    key_not_set_marker = options[:key_not_set_marker] || :key_not_set
     Dict.keys(map1) ++ Dict.keys(map2)
     |> Enum.uniq
     |> Enum.map(fn key ->
@@ -15,8 +16,8 @@ defmodule MapDiffEx do
         Enum.member?(ignore_keys, key |> Atom.to_string) ->
           {key, nil}
         true ->
-          value1 = Dict.get(map1, key, :key_not_set)
-          value2 = Dict.get(map2, key, :key_not_set)
+          value1 = Dict.get(map1, key, key_not_set_marker)
+          value2 = Dict.get(map2, key, key_not_set_marker)
           next_level_options = Dict.put(options, :ignore, ignore_keys |> strip_prefix_from_string_list(key))
 
           { key, do_diff(value1, value2, next_level_options) }
