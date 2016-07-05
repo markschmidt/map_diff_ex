@@ -96,6 +96,14 @@ defmodule MapDiffExTest do
     assert diff(map1, map2) == expected_diff
   end
 
+  test "should allow a custom 'key_not_set' marker" do
+    map1 = %{a: 1}
+    map2 = %{}
+
+    expected_diff = %{a: {1, "KEY_NOT_SET"}}
+    assert diff(map1, map2, %{key_not_set_marker: "KEY_NOT_SET"}) == expected_diff
+  end
+
   test "should handle sub maps" do
     map1 = %{a: %{b: 2}}
     map2 = %{a: %{b: 3}}
